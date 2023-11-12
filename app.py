@@ -1,8 +1,9 @@
-from flask import Flask, render_template, request, redirect, flash
+from datetime import datetime
+
+from flask import Flask, render_template, request, flash,redirect,url_for
+from flask_login import LoginManager, UserMixin, login_required,login_user
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
-from flask_login import LoginManager
-from datetime import datetime
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///people.db'
@@ -10,11 +11,12 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///people.db'
 app.config['SECRET_KEY'] = 'q5rVjWG01Kf4Sdd11tM2XaHaQ'
 db = SQLAlchemy(app)
 login_manager = LoginManager(app)
+login_manager.login_view = 'index'
 
 
-class User(db.Model):
+class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
-    Password = db.Column(db.String(20), nullable=False)
+    Password = db.Column(db.String(50), nullable=False)
     email = db.Column(db.String(500), nullable=False)
     date = db.Column(db.DateTime, default=datetime.utcnow)
 
@@ -32,30 +34,50 @@ class Profiles(db.Model):
         return '<Profiles %r>' % self.id
 
 
+# @login_manager.user_loader
+# def load_user(user_id):
+#     print('load_user')
+#     return UserLogIn().fromDB(user_id, db)
+
 @login_manager.user_loader
 def load_user(user_id):
-    print('load_user')
-    return UserLogIn().fromDB(user_id, db)
+    return db.session.query(User).get(user_id)
 
 
-@app.route("/")
-@app.route("/index")
-def index():
+# @app.route("/")
+# @app.route("/index")
+# def index():
+#     return render_template("index.html")
+
+
+@app.route("/", methods=["GET", "POST"])
+def login():
+    if request.method == "POST":
+        user = User.query.filter_by(
+            email=request.form.get("email")).first()
+        if check_password_hash(user.Password, request.form.get("password")):
+            login_user(user)
+            return redirect(url_for("personal_account"))
     return render_template("index.html")
 
 
-@app.route("/personal_account/<user_id>")
-def personal_account(user_id):
-    user = User.query.where(User.id == user_id).one_or_none()
-    return render_template("personal_account.html", User=user)
+@app.route("/personal_account")
+@login_required
+def personal_account():
+    return render_template("personal_account.html")
 
 
 @app.route("/signup", methods=['POST', 'GET'])
 def signup():
     if request.method == 'POST':
         if request.form['password'] == request.form['password2']:
+            chek_user = User.query.filter_by(
+                email=request.form.get("email")).first()
+            if chek_user:
+                flash("Ошибка регистрации", category='error')
+                flash('Пароли должны совпадать', category='error')
+                return render_template("signup.html")
             username = request.form['username']
-
             # шифрование паролей чтоб не сглазили
             hash = generate_password_hash(request.form['password'])
             password = hash
@@ -69,7 +91,7 @@ def signup():
             db.session.commit()
             # этот флэш и есть сессионная функция
             flash('Регистрация прошла успешно', category='success')
-            return render_template('index.html')
+            return redirect(url_for("login"))
         else:
             flash("Ошибка регистрации", category='error')
             flash('Пароли должны совпадать', category='error')

@@ -13,7 +13,10 @@
     <div class="container">
         <div class="login-form">
             <h2>Войти в аккаунт</h2>
-            <form action="php/login.php" method="post">
+    {% for cat,msg in get_flashed_messages(True) %}
+                <div class="flash {{cat}}">{{msg}}</div>
+            {% endfor %}
+            <form action="" method="post">
                 <label for="email">Email:</label>
                 <input type="email" id="email" name="email" required>
                 <label for="password">Пароль:</label>

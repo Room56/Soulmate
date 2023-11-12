@@ -8,13 +8,13 @@
 </head>
 <body>
     <header>
-        <h1>Личный кабинет</h1>
+        <h1>Личный кабинет </h1>
     </header>
-    <div class="container">
-        <p>Добро пожаловать в ваш личный кабинет!</p>
-        <p>Ваш адрес электронной почты: {{User.email}}</p>
-        <p>Ваш город: {{User.city}}</p>
-    </div>
+    {% if current_user.is_authenticated %}
+    <h1>You are logged in {{current_user.email}}</h1>
+    {% else %}
+    <h1>You are not logged in</h1>
+    {% endif %}
 <form action="/logout" method="post">
 <button type="submit" class="logout-button">Выйти</button>
 </form>
