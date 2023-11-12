@@ -1,60 +1,29 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Знакомства онлайн</title>
-<style>
-body {
-font-family: Arial, sans-serif;
-margin: 0;
-padding: 0;
-background-color: #c54b8c;
-}
-header {
-background-color: #6f0035;
-color: #fff;
-padding: 10px 0;
-text-align: center;
-}
-.container {
-width: 80%;
-margin: auto;
-overflow: hidden;
-}
-.main {
-padding: 20px 0;
-text-align: center;
-}
-.signup-button {
-background-color: #7e0059;
-color: #fff;
-border: none;
-padding: 10px 20px;
-font-size: 18px;
-cursor: pointer;
-}
-.login-button{
-background-color: #7e0059;
-color: #fff;
-border: none;
-padding: 10px 20px;
-font-size: 18px;
-cursor: pointer;
-}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Сайт знакомств</title>
+    <link rel="stylesheet" href="static/style.css" type = "text/css">
 </head>
 <body>
-<header>
-<div class="container">
-<h1>Добро пожаловать на сайт знакомств онлайн</h1>
-</div>
-</header>
-<div class="container main">
-<h2>Найдите свою вторую половинку прямо сейчас!</h2>
-<p>Зарегистрируйтесь бесплатно и начните свое приключение в мире онлайн знакомств.</p>
-<a href="/signup" class="signup-button">Зарегистрироваться</a>
-<a href="/login" class="login-button">Войти</a>
-</div>
+    <header>
+        <h1>Добро пожаловать на сайт знакомств</h1>
+    </header>
+    <div class="container">
+        <div class="login-form">
+            <h2>Войти в аккаунт</h2>
+            <form action="php/login.php" method="post">
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" required>
+                <label for="password">Пароль:</label>
+                <input type="password" id="password" name="password" required>
+                <button type="submit">Войти</button>
+            </form>
+        </div>
+        <div class="registration-button">
+            <a href="/signup">Зарегистрироваться</a>
+        </div>
+    </div>
 </body>
 </html>
