@@ -11,12 +11,13 @@
         <h1>Личный кабинет </h1>
     </header>
     {% if current_user.is_authenticated %}
-    <h1>You are logged in {{current_user.email}}</h1>
+    <h1>вы зашли под {{current_user.email}}</h1>
     {% else %}
-    <h1>You are not logged in</h1>
+    <h1>Вы не зашли</h1>
     {% endif %}
 <form action="/logout" method="post">
-<button type="submit" class="logout-button">Выйти</button>
+
+<button type="submit" class="logout-button"><a href="/logout">Выйти</a></button>
 </form>
 </body>
 </html>
