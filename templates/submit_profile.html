@@ -1,10 +1,9 @@
 <!DOCTYPE html>
-<html lang="ru">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Заполнение профиля</title>
-<style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Заполнение профиля</title>
+    <style>
 body {
 font-family: Arial, sans-serif;
 margin: 0;
@@ -51,20 +50,25 @@ cursor: pointer;
 </head>
 <body>
 <div class="container">
-<h2>Заполните свой профиль</h2>
-<form action="/submit_profile" method="post">
-<div class="form-group">
-<label for="birthdate">Дата рождения:</label>
-<input type="date" id="birthdate" name="birthdate" required>
-</div>
-<div class="form-group">
-<label for="description">Расскажите о себе:</label>
-<textarea id="description" name="description" rows="4" required></textarea>
-</div>
-<div class="form-group">
-<button type="submit" class="submit-button"><a href="/personal_account"> Сохранить профиль </a> Сохранить аккаунт</button>
-</div>
-</form>
+    <h2>Заполните свой профиль</h2>
+    <form action={{user_id}} method="post">
+        <div class="form-group">
+            <label for="birthdate">Дата рождения:</label>
+            <input type="date" id="birthdate" name="birthdate" required>
+        </div>
+        <label for="Username">Ваше имя:</label>
+        <input type="text" id="Username" name="Username" required>
+        <div class="form-group">
+            <label for="city">Город:</label>
+            <input type="text" id="city" name="city" required>
+        </div>
+        <div class="form-group">
+            <label for="description">Расскажите о себе:</label>
+            <textarea id="description" name="description" rows="4" required></textarea>
+        </div>
+        <div class="form-group">
+            <button type="submit" class="submit-button"><a href="/personal_account"> Сохранить профиль </a> Сохранить аккаунт</button>
+        </div>
+    </form>
 </div>
 </body>
-</html>

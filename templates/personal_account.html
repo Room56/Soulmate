@@ -11,7 +11,7 @@
         <h1>Личный кабинет </h1>
     </header>
     {% if current_user.is_authenticated %}
-    <h1>вы зашли под {{current_user.email}}</h1>
+    <h1>вы зашли под {{current_user.Username}}</h1>
     {% else %}
     <h1>Вы не зашли</h1>
     {% endif %}

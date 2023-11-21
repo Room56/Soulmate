@@ -25,11 +25,11 @@ class User(db.Model, UserMixin):
 
 class Profiles(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    city = db.Column(db.String(20), nullable=False)
-    Username = db.Column(db.String(20), nullable=False)
+    city = db.Column(db.String(20), nullable=True)
+    Username = db.Column(db.String(20), nullable=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    description=db.Column(db.Text(), nullable=True)
-    age=db.Column(db.String(10),nullable=True)
+    description = db.Column(db.Text(), nullable=True)
+    age = db.Column(db.String(10), nullable=True)
 
     def __repr__(self):
         return '<Profiles %r>' % self.id
@@ -46,8 +46,16 @@ def index():
     return render_template("index.html")
 
 
-#@app.route('/submit_profile',methods=["GET", "POST"])
-#def submit_profile():
+@app.route('/submit_profile/<user_id>', methods=["GET", "POST"])
+@login_required
+def submit_profile(user_id):
+    prof = Profiles.query.where(user_id == Profiles.user_id).first()
+    prof.description = request.form.get('description')
+    prof.age = request.form.get('birthdate')
+    prof.city = request.form.get('city')
+    prof.Username = request.form.get('Username')
+    db.session.commit()
+    return render_template('submit_profile.html', user_id=f'/submit_profile/{user_id}')
 
 
 @app.route("/", methods=["GET", "POST"])
@@ -57,11 +65,11 @@ def login():
         user = User.query.filter_by(
             email=request.form.get("email")).first()
         if user:
-            # profile = Profiles.query.where(user.id == Profiles.user_id).first()
+            profile = Profiles.query.where(user.id == Profiles.user_id).first()
             if check_password_hash(user.Password, request.form.get("password")):
                 login_user(user)
-                # if profile.description == None:
-                #     return redirect(url_for("submit_profile"))
+                if profile.description == None:
+                    return redirect(url_for("submit_profile", user_id=user.id))
                 return redirect(url_for("personal_account"))
             else:
                 flash('Неверный адрес электронной почты/пароль', category='error')
@@ -92,16 +100,14 @@ def signup():
                 flash("Ошибка регистрации", category='error')
                 flash('Пользователь с таким email уже зарегестрирован', category='error')
                 return render_template("signup.html")
-            username = request.form['username']
             # шифрование паролей чтоб не сглазили
             hash = generate_password_hash(request.form['password'])
             password = hash
             email = request.form['email']
-            city = request.form['city']
             user = User(Password=password, email=email)
             db.session.add(user)
             db.session.flush()
-            prof = Profiles(Username=username, city=city, user_id=user.id)
+            prof = Profiles(user_id=user.id)
             db.session.add(prof)
             db.session.commit()
             # этот флэш и есть сессионная функция
