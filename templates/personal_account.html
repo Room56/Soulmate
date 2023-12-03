@@ -4,19 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Личный кабинет</title>
-    <link rel="stylesheet" href="static/style.css">
+    <link rel="stylesheet" href="../static/style.css">
 </head>
 <body>
     <header>
         <h1>Личный кабинет </h1>
     </header>
     {% if current_user.is_authenticated %}
-    <h1>вы зашли под {{current_user.Username}}</h1>
+    <h1>Здравствуйте {{user.Username}}</h1>
     {% else %}
     <h1>Вы не зашли</h1>
     {% endif %}
+    <button type="submit" class="logout-button"><a href="/upload_profpic">Загрузить фото</a></button>
 <form action="/logout" method="post">
-
 <button type="submit" class="logout-button"><a href="/logout">Выйти</a></button>
 </form>
 </body>

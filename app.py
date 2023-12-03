@@ -1,8 +1,9 @@
 from datetime import datetime
 from flask import Flask, render_template, request, flash, redirect, url_for
-from flask_login import LoginManager, UserMixin, login_required, login_user, logout_user
+from flask_login import LoginManager, UserMixin, login_required, login_user, logout_user, current_user
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///people.db'
@@ -35,27 +36,44 @@ class Profiles(db.Model):
         return '<Profiles %r>' % self.id
 
 
+class ProfPic(db.Model):
+    id=db.Column(db.Integer, primary_key=True)
+    img=db.Column(db.Text,nullable=False)
+    fname=db.Column(db.Text,nullable=False)
+    mimetype=db.Column(db.Text,nullable=False)
+    pic_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    def __repr__(self):
+        return '<ProfPic %r>' % self.id
+
+
 @login_manager.user_loader
 def load_user(user_id):
     return db.session.query(User).get(user_id)
 
-
-@app.route("/index")
-@app.route('/')
-def index():
-    return render_template("index.html")
-
-
-@app.route('/submit_profile/<user_id>', methods=["GET", "POST"])
+@app.route('/submit_profile', methods=["GET", "POST"])
 @login_required
-def submit_profile(user_id):
-    prof = Profiles.query.where(user_id == Profiles.user_id).first()
+def submit_profile():
+    prof = Profiles.query.where(current_user.id == Profiles.user_id).first()
     prof.description = request.form.get('description')
     prof.age = request.form.get('birthdate')
     prof.city = request.form.get('city')
     prof.Username = request.form.get('Username')
     db.session.commit()
-    return render_template('submit_profile.html', user_id=f'/submit_profile/{user_id}')
+    return redirect((url_for('personal_account')))
+
+
+@app.route('/submit_profile_page', methods=["GET", "POST"])
+@login_required
+def submit_profile_page():
+    return render_template('submit_profile.html')
+
+
+@app.route('/upload_profpic')
+@login_required
+def upload():
+    if not (current_user.is_authenticated):
+        return render_template('index.htm')
+    return render_template('upload_profpic.html')
 
 
 @app.route("/", methods=["GET", "POST"])
@@ -69,8 +87,8 @@ def login():
             if check_password_hash(user.Password, request.form.get("password")):
                 login_user(user)
                 if profile.description == None:
-                    return redirect(url_for("submit_profile", user_id=user.id))
-                return redirect(url_for("personal_account"))
+                    return redirect(url_for("submit_profile_page", user_id=user.id))
+                return redirect(url_for("personal_account", user_id=user.id))
             else:
                 flash('Неверный адрес электронной почты/пароль', category='error')
         else:
@@ -87,7 +105,19 @@ def logout():
 @app.route("/personal_account")
 @login_required
 def personal_account():
-    return render_template("personal_account.html")
+    user = Profiles.query.where(current_user.id == Profiles.user_id).first()
+    if not (current_user.is_authenticated):
+        return render_template('index.htm')
+    return render_template("personal_account.html",user=user)
+
+
+@app.route('/upload', methods=["POST"])
+def photo():
+    pic=request.files['photo']
+    prof_pic=ProfPic(img=pic.read(),mimetype=pic.mimetype,fname=secure_filename(pic.filename),pic_id=current_user.id)
+    db.session.add(prof_pic)
+    db.session.commit()
+    return redirect(url_for('personal_account'))
 
 
 @app.route("/signup", methods=['POST', 'GET'])
